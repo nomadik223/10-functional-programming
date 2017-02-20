@@ -29,11 +29,6 @@ Article.loadAll = rows => {
   // DONE: Refactor this forEach code, by using a `.map` call instead, since want we are trying to accomplish
   // is the transformation of one colleciton into another.
 
-  /* OLD forEach():
-  rawData.forEach(function(ele) {
-  Article.all.push(new Article(ele));
-});
-*/
 Article.all = rows.map(function(ele){
   return new Article(ele);
 })
@@ -62,21 +57,41 @@ Article.fetchAll = callback => {
   )
 };
 
-// TODO: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
+// DONE: Chain together a `map` and a `reduce` call to get a rough count of all words in all articles.
 Article.numWordsAll = () => {
-  return Article.all.map().reduce()
+  return Article.all.map(function(article){
+      return article.body.split(' ');
+  }).reduce(function(preVal, newVal){
+      let finalVal = preVal + newVal;
+      return finalVal;
+  }, 0);
 };
 
-// TODO: Chain together a `map` and a `reduce` call to produce an array of unique author names.
+// DONE: Chain together a `map` and a `reduce` call to produce an array of unique author names.
 Article.allAuthors = () => {
-  return Article.all.map().reduce();
+  return Article.all.map(function(article){
+      return article.author;
+  }).filter(function(author, index, authorArray){
+      return authorArray.indexOf(author) === index;
+  })
 };
 
 Article.numWordsByAuthor = () => {
   return Article.allAuthors().map(author => {
-    // TODO: Transform each author string into an object with properties for
+    // DONE: Transform each author string into an object with properties for
     // the author's name, as well as the total number of words across all articles
     // written by the specified author.
+    return {
+        name: author;
+        count: Article.all.filter(function(article){
+            return article.author === author;
+        }).map(function(article){
+            return article.body.split(' ')''
+        }).reduce(function(preVal, newVal){
+            let finalVal = preVal + newVal;
+            return finalVal;
+        })
+    }
 
   })
 };
@@ -121,4 +136,7 @@ Article.prototype.updateRecord = function(callback) {
     .then(console.log)
     .then(callback);
   };
-});
+
+  module.Article = Article;
+
+})(window);

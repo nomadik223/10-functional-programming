@@ -1,120 +1,127 @@
 'use strict';
 
-// TODO: Wrap the entire contents of this file in an IIFE.
+// DONE: Wrap the entire contents of this file in an IIFE.
 // Pass in to the IIFE a module, upon which objects can be attached for later access.
-var articleView = {};
 
-articleView.populateFilters = function() {
-  $('article').each(function() {
-    if (!$(this).hasClass('template')) {
-      var val = $(this).find('address a').text();
-      var optionTag = `<option value="${val}">${val}</option>`;
-      if ($(`#author-filter option[value="${val}"]`).length === 0) {
-        $('#author-filter').append(optionTag);
-      }
+(function(module) {
+    var articleView = {};
 
-      val = $(this).attr('data-category');
-      optionTag = `<option value="${val}">${val}</option>`;
-      if ($(`#category-filter option[value="${val}"]`).length === 0) {
-        $('#category-filter').append(optionTag);
-      }
-    }
-  });
-};
+    articleView.populateFilters = function() {
+      $('article').each(function() {
+        if (!$(this).hasClass('template')) {
+          var val = $(this).find('address a').text();
+          var optionTag = `<option value="${val}">${val}</option>`;
+          if ($(`#author-filter option[value="${val}"]`).length === 0) {
+            $('#author-filter').append(optionTag);
+          }
 
-articleView.handleAuthorFilter = function() {
-  $('#author-filter').on('change', function() {
-    if ($(this).val()) {
-      $('article').hide();
-      $(`article[data-author="${$(this).val()}"]`).fadeIn();
-    } else {
-      $('article').fadeIn();
-      $('article.template').hide();
-    }
-    $('#category-filter').val('');
-  });
-};
+          val = $(this).attr('data-category');
+          optionTag = `<option value="${val}">${val}</option>`;
+          if ($(`#category-filter option[value="${val}"]`).length === 0) {
+            $('#category-filter').append(optionTag);
+          }
+        }
+      });
+    };
 
-articleView.handleCategoryFilter = function() {
-  $('#category-filter').on('change', function() {
-    if ($(this).val()) {
-      $('article').hide();
-      $(`article[data-category="${$(this).val()}"]`).fadeIn();
-    } else {
-      $('article').fadeIn();
-      $('article.template').hide();
-    }
-    $('#author-filter').val('');
-  });
-};
+    articleView.handleAuthorFilter = function() {
+      $('#author-filter').on('change', function() {
+        if ($(this).val()) {
+          $('article').hide();
+          $(`article[data-author="${$(this).val()}"]`).fadeIn();
+        } else {
+          $('article').fadeIn();
+          $('article.template').hide();
+        }
+        $('#category-filter').val('');
+      });
+    };
 
-articleView.handleMainNav = function() {
-  $('.main-nav').on('click', '.tab', function() {
-    $('.tab-content').hide();
-    $(`#${$(this).data('content')}`).fadeIn();
-  });
+    articleView.handleCategoryFilter = function() {
+      $('#category-filter').on('change', function() {
+        if ($(this).val()) {
+          $('article').hide();
+          $(`article[data-category="${$(this).val()}"]`).fadeIn();
+        } else {
+          $('article').fadeIn();
+          $('article.template').hide();
+        }
+        $('#author-filter').val('');
+      });
+    };
 
-  $('.main-nav .tab:first').click();
-};
+    articleView.handleMainNav = function() {
+      $('.main-nav').on('click', '.tab', function() {
+        $('.tab-content').hide();
+        $(`#${$(this).data('content')}`).fadeIn();
+      });
 
-articleView.setTeasers = function() {
-  $('.article-body *:nth-of-type(n+2)').hide();
+      $('.main-nav .tab:first').click();
+    };
 
-  $('#articles').on('click', 'a.read-on', function(e) {
-    e.preventDefault();
-    $(this).parent().find('*').fadeIn();
-    $(this).hide();
-  });
-};
+    articleView.setTeasers = function() {
+      $('.article-body *:nth-of-type(n+2)').hide();
 
-articleView.initNewArticlePage = function() {
-  $('.tab-content').show();
-  $('#export-field').hide();
-  $('#article-json').on('focus', function(){
-    this.select();
-  });
+      $('#articles').on('click', 'a.read-on', function(e) {
+        e.preventDefault();
+        $(this).parent().find('*').fadeIn();
+        $(this).hide();
+      });
+    };
 
-  $('#new-form').on('change', 'input, textarea', articleView.create);
-};
+    articleView.initNewArticlePage = function() {
+      $('.tab-content').show();
+      $('#export-field').hide();
+      $('#article-json').on('focus', function(){
+        this.select();
+      });
 
-articleView.create = function() {
-  var article;
-  $('#articles').empty();
+      $('#new-form').on('change', 'input, textarea', articleView.create);
+    };
 
-  article = new Article({
-    title: $('#article-title').val(),
-    author: $('#article-author').val(),
-    authorUrl: $('#article-author-url').val(),
-    category: $('#article-category').val(),
-    body: $('#article-body').val(),
-    publishedOn: $('#article-published:checked').length ? new Date() : null
-  });
+    articleView.create = function() {
+      var article;
+      $('#articles').empty();
 
-  $('#articles').append(article.toHtml());
-  $('pre code').each((i, block) => hljs.highlightBlock(block));
-  $('#export-field').show();
-  $('#article-json').val(`${JSON.stringify(article)},`);
-};
+      article = new Article({
+        title: $('#article-title').val(),
+        author: $('#article-author').val(),
+        authorUrl: $('#article-author-url').val(),
+        category: $('#article-category').val(),
+        body: $('#article-body').val(),
+        publishedOn: $('#article-published:checked').length ? new Date() : null
+      });
 
-articleView.initIndexPage = function() {
-  Article.all.forEach(a => $('#articles').append(a.toHtml()));
+      $('#articles').append(article.toHtml());
+      $('pre code').each((i, block) => hljs.highlightBlock(block));
+      $('#export-field').show();
+      $('#article-json').val(`${JSON.stringify(article)},`);
+    };
 
-  articleView.populateFilters();
-  articleView.handleCategoryFilter();
-  articleView.handleAuthorFilter();
-  articleView.handleMainNav();
-  articleView.setTeasers();
-};
+    articleView.initIndexPage = function() {
+      Article.all.forEach(a => $('#articles').append(a.toHtml()));
 
-articleView.initAdminPage = function() {
-  // TODO: Call the Handlebars `.compile` function, which will return a function for you to use where needed.
+      articleView.populateFilters();
+      articleView.handleCategoryFilter();
+      articleView.handleAuthorFilter();
+      articleView.handleMainNav();
+      articleView.setTeasers();
+    };
 
-  // REVIEW: We use `forEach` here because we are relying on the side-effects of the callback function:
-  // appending to the DOM.
-  // The callback is not required to return anything.
-  Article.numWordsByAuthor().forEach(stat => $('.author-stats').append(template(stat)));
+    articleView.initAdminPage = function() {
+      // DONE: Call the Handlebars `.compile` function, which will return a function for you to use where needed.
+      let template = Handlebars.compile($('#handlebarsProject').text());
+      return template(this);
 
-  // REVIEW: Simply write the correct values to the page:
-  $('#blog-stats .articles').text(Article.all.length);
-  $('#blog-stats .words').text(Article.numWordsAll());
-};
+      // REVIEW: We use `forEach` here because we are relying on the side-effects of the callback function:
+      // appending to the DOM.
+      // The callback is not required to return anything.
+      Article.numWordsByAuthor().forEach(stat => $('.author-stats').append(template(stat)));
+
+      // REVIEW: Simply write the correct values to the page:
+      $('#blog-stats .articles').text(Article.all.length);
+      $('#blog-stats .words').text(Article.numWordsAll());
+    };
+
+    module.articleView = articleView;
+})(window);
