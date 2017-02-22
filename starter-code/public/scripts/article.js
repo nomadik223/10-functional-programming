@@ -71,10 +71,15 @@
     Article.allAuthors = () => {
       return Article.all.map(function(article){
           return article.author;
-      }).filter(function(author, index, authorArray){
-          return authorArray.indexOf(author) === index;
-      });
-    };
+      }).reduce(function(preVal, newVal) {
+          if(!preVal.includes(newVal)){
+              preVal.push(newVal);
+          }
+          return preVal;
+      }, []);
+  };
+
+
 
     Article.numWordsByAuthor = () => {
       return Article.allAuthors().map(author => {
